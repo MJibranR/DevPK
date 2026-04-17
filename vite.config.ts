@@ -19,16 +19,48 @@ export default defineConfig({
     },
     plugins: [
       {
-        name: "copy-index-html",
+        name: "create-client-index-html",
         enforce: "post",
         apply: "build",
         writeBundle() {
-          const indexPath = path.join("dist/client", "index.html");
-          const sourceIndexPath = "index.html";
+          const clientDir = path.join("dist/client", "client");
+          const manifestPath = path.join("dist/client", "server", ".vite", "manifest.json");
+          const indexPath = path.join(clientDir, "index.html");
           
-          if (!fs.existsSync(indexPath) && fs.existsSync(sourceIndexPath)) {
-            fs.copyFileSync(sourceIndexPath, indexPath);
+          if (!fs.existsSync(clientDir)) {
+            fs.mkdirSync(clientDir, { recursive: true });
           }
+          
+          let entryScript = "/assets/index-CziVUOGr.js"; // fallback
+          
+          try {
+            if (fs.existsSync(manifestPath)) {
+              const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+              const entryKey = Object.keys(manifest).find(key => key.includes("src/main"));
+              if (entryKey && manifest[entryKey]?.file) {
+                entryScript = `/assets/${manifest[entryKey].file}`;
+              }
+            }
+          } catch (err) {
+            console.warn("Could not read manifest, using fallback entry script");
+          }
+          
+          const html = `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DevPK</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="${entryScript}"></script>
+  </body>
+</html>`;
+          
+          fs.writeFileSync(indexPath, html);
+          console.log("✓ Created dist/client/client/index.html");
         }
       }
     ]
