@@ -1,10 +1,16 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/client/client",
-  "rewrites": [
+  "outputDirectory": "dist/client",
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/assets/.*",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
