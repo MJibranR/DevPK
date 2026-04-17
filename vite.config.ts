@@ -8,12 +8,29 @@
 
 // export default defineConfig();
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import fs from "fs";
+import path from "path";
 
 export default defineConfig({
   vite: {
     build: {
       outDir: "dist/client",
       emptyOutDir: true
-    }
+    },
+    plugins: [
+      {
+        name: "copy-index-html",
+        enforce: "post",
+        apply: "build",
+        writeBundle() {
+          const indexPath = path.join("dist/client", "index.html");
+          const sourceIndexPath = "index.html";
+          
+          if (!fs.existsSync(indexPath) && fs.existsSync(sourceIndexPath)) {
+            fs.copyFileSync(sourceIndexPath, indexPath);
+          }
+        }
+      }
+    ]
   }
 });
