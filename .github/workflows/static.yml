@@ -1,4 +1,4 @@
-name: Deploy Vite site to Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -27,18 +27,15 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Build
+      - name: Build project
         run: npm run build
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist/client
+          path: dist/client
 
   deploy:
     environment:
@@ -49,7 +46,6 @@ jobs:
     needs: build
 
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
-```
